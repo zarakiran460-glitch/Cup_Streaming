@@ -1,0 +1,36 @@
+name: Prod Pipeline
+
+on:
+  push:
+    branches: [ "main" ]   # jab main branch pe push hoga tab chalega
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Prepare clean package
+        run: |
+          mkdir app_package
+          rsync -av --progress ./ app_package \
+            --exclude .git \
+            --exclude .gitignore \
+            --exclude .github \
+            --exclude .azure-pipelines \
+            --exclude '*.yml' \
+            --exclude '*.env' \
+            --exclude 'node_modules' \
+            --exclude 'venv' \
+            --exclude '__pycache__' \
+            --exclude '*.pyc' \
+            --exclude '*.log' \
+            --exclude '*.sqlite3'
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: drop
+          path: app_package
